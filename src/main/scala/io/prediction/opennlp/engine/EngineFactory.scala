@@ -1,8 +1,8 @@
 package io.prediction.opennlp.engine
 
-import io.prediction.controller.{Engine, IEngineFactory}
+import org.apache.predictionio.controller.{Engine, EngineFactory, IEngineFactory}
 
-object EngineFactory extends IEngineFactory {
+object EngineFactory extends EngineFactory {
   def apply() = {
     new Engine(
       classOf[DataSource],

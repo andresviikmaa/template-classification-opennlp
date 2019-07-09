@@ -1,11 +1,9 @@
 package io.prediction.opennlp.engine
 
-import io.prediction.controller.P2LAlgorithm
+import org.apache.predictionio.controller.P2LAlgorithm
 import opennlp.maxent.GIS
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import io.prediction.data.storage.DataMap
-
 
 class Algorithm(val ap: AlgorithmParams)
   extends P2LAlgorithm[PreparedData, Model, Query, PredictedResult] {
@@ -16,7 +14,7 @@ class Algorithm(val ap: AlgorithmParams)
   }
 
   def predict(model: Model, query: Query): PredictedResult = {
-    val interest = model.gis.getBestOutcome(model.gis.eval(query.sentence.split(" "))).replace("_"," ") 
+    val interest = model.gis.getBestOutcome(model.gis.eval(query.text.split(" ")))
     PredictedResult(interest)
   }
 

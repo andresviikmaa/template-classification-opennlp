@@ -1,3 +1,3 @@
 package io.prediction.opennlp.engine
 
-case class Query(sentence: String) extends Serializable
+case class Query(text: String) extends Serializable
