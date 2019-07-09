@@ -5,7 +5,8 @@
   "datasource": {
     "params" : {
       "appId" : 13,
-      "cutoff": 2
+      "cutoff": 2,
+      "eventNames": ["spam", "not-spam"]
     }
   },
   "algorithms": [

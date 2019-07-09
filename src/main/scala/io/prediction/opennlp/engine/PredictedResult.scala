@@ -1,3 +1,5 @@
 package io.prediction.opennlp.engine
 
-case class PredictedResult(interest: String) extends Serializable
+case class ItemScore(category: String, confidence: Double)
+
+case class PredictedResult(itemScores: Array[ItemScore]) extends Serializable

@@ -14,8 +14,13 @@ class Algorithm(val ap: AlgorithmParams)
   }
 
   def predict(model: Model, query: Query): PredictedResult = {
-    val interest = model.gis.getBestOutcome(model.gis.eval(query.text.split(" ")))
-    PredictedResult(interest)
+    val outcomes = model.gis.getAllOutcomes(model.gis.eval(query.text.split(" ")))
+
+    val re = """(\w+)\[([\d.]+)\]""".r
+    val itemScores = outcomes.split("  ").map(_ match {
+      case re (label, prob) => ItemScore(label, prob.toDouble)
+    })
+    PredictedResult(itemScores)
   }
 
   override def batchPredict(model: Model, qs: RDD[(Long, Query)]): RDD[(Long, PredictedResult)] = {
