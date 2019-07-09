@@ -1,15 +1,17 @@
 package io.prediction.opennlp.engine
 
 import org.apache.predictionio.controller.P2LAlgorithm
-import opennlp.maxent.GIS
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import opennlp.tools.ml.maxent.GISTrainer
 
 class Algorithm(val ap: AlgorithmParams)
   extends P2LAlgorithm[PreparedData, Model, Query, PredictedResult] {
 
   def train(sc: SparkContext, data: PreparedData): Model = {
-   Model(GIS.trainModel(ap.iteration, data.dataIndexer, ap.smoothing))
+    val trainer = new GISTrainer()
+    trainer.setSmoothing(ap.smoothing)
+   Model(trainer.trainModel(ap.iteration, data.dataIndexer))
 
   }
 

@@ -1,6 +1,5 @@
 package io.prediction.opennlp.engine
 
-import opennlp.model.DataIndexer
-import scala.collection.Map
+import opennlp.tools.ml.model.DataIndexer
 
 case class PreparedData(dataIndexer: DataIndexer) extends Serializable

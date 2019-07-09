@@ -1,13 +1,12 @@
 package io.prediction.opennlp.engine
 
+import java.util
+
 import grizzled.slf4j.Logger
-import org.apache.predictionio.controller.{EmptyEvaluationInfo, EmptyParams, PDataSource}
-import org.apache.predictionio.data.storage.Storage
-import opennlp.maxent.BasicEventStream
-import opennlp.model.OnePassDataIndexer
+import opennlp.tools.ml.model.{AbstractDataIndexer, OnePassDataIndexer}
+import opennlp.tools.util.TrainingParameters
+import org.apache.predictionio.controller.{EmptyEvaluationInfo, PDataSource}
 import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
-import org.apache.predictionio.data.storage.DataMap
 import org.apache.predictionio.data.store.PEventStore
 
 import Array._
@@ -26,18 +25,8 @@ class DataSource(val dsp: DataSourceParams) extends PDataSource[
     val trainingTreeStrings = allPhraseandInterests(sc)
     TrainingData(phraseAndInterestToTrainingData(trainingTreeStrings))
   }
-  /*
-  private def allPhraseandInterests(sc: SparkContext): Seq[String] = {
-    val events = Storage.getPEvents().find(appId = dsp.appId, entityType = Some("phrase"))(sc)
-    events.map { event =>
-      val phrase = event.properties.get[String]("phrase")
-      val Interest = event.properties.get[String]("Interest").replace(" ","_")
-      s"$phrase $Interest"
-    }.collect().toSeq
 
-  }
-*/
-  private def allPhraseandInterests(sc: SparkContext) : Seq[String] = {
+  private def allPhraseandInterests(sc: SparkContext) : Seq[(String, String)] = {
     logger.info(s"Event names ${ dsp.eventNames}")
 
     //Get RDD of Events.
@@ -51,15 +40,20 @@ class DataSource(val dsp: DataSourceParams) extends PDataSource[
     )(sc).map(e => {
       val Interest = e.event
       val phrase = e.properties.get[String]("query")
-      phrase + Separator + Interest
+      (Interest, phrase)
 
     }).collect().toSeq
   }
 
-  private def phraseAndInterestToTrainingData(phraseAndInterests: Seq[String]) = {
+  private def phraseAndInterestToTrainingData(phraseAndInterests: Seq[(String, String)]) = {
 
-    val eventStream = new BasicEventStream(new SeqDataStream(phraseAndInterests), Separator)
-    val dataIndexer = new OnePassDataIndexer(eventStream, dsp.cutoff)
+    val eventStream = new SeqDataStream(phraseAndInterests)
+    val dataIndexer = new OnePassDataIndexer()
+    val params = new util.HashMap[String, String]();
+    params.put(AbstractDataIndexer.CUTOFF_PARAM, dsp.cutoff.toString)
+
+    dataIndexer.init(new TrainingParameters(params), null)
+    dataIndexer.index(eventStream)
 
     dataIndexer
   }
