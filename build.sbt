@@ -1,6 +1,7 @@
 
 
 name := "pio-corenlp"
+version := "0.2.0"
 
 val pioVersion = "0.14.0"
 
